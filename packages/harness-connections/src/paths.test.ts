@@ -27,6 +27,11 @@ it("uses explicit harness config paths and agent directories", () => {
   expect(isolated.openclaw).toBe("/isolated/.openclaw/openclaw.json")
 })
 
+it("treats empty harness home variables as unset, like the harnesses do", () => {
+  const environment = { PI_CODING_AGENT_DIR: "", HERMES_HOME: "", OPENCLAW_STATE_DIR: "", CODEX_HOME: "" }
+  expect(harnessConnectionPaths(undefined, environment)).toEqual(harnessConnectionPaths(undefined, {}))
+})
+
 it("keeps Cline model catalogs beside the selected provider settings", () => {
   const root = harnessConnectionPaths(undefined, { CLINE_DATA_DIR: "/custom/cline" })
   expect(root.clineProviders).toBe("/custom/cline/settings/providers.json")

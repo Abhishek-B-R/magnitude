@@ -32,7 +32,7 @@ export interface HarnessConnectionPaths {
 export const harnessConnectionPaths = (isolatedHome?: string, inheritedEnvironment: Readonly<Record<string, string | undefined>> = process.env): HarnessConnectionPaths => {
   const home = isolatedHome ?? homedir()
   const environment = isolatedHome === undefined ? inheritedEnvironment : {}
-  const piRoot = resolve(environment.PI_CODING_AGENT_DIR ?? `${home}/.pi/agent`)
+  const piRoot = resolve(environment.PI_CODING_AGENT_DIR || `${home}/.pi/agent`)
   const ompProfile = (environment.OMP_PROFILE ?? environment.PI_PROFILE)?.trim()
   const namedOmpProfile = ompProfile && ompProfile !== "default" ? ompProfile : undefined
   if (namedOmpProfile && (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(namedOmpProfile)
@@ -44,9 +44,9 @@ export const harnessConnectionPaths = (isolatedHome?: string, inheritedEnvironme
     : environment.PI_CODING_AGENT_DIR || `${ompConfigRoot}/agent`)
   const clineRoot = environment.CLINE_DATA_DIR || `${home}/.cline/data`
   const clineProviders = environment.CLINE_PROVIDER_SETTINGS_PATH || `${clineRoot}/settings/providers.json`
-  const hermesRoot = environment.HERMES_HOME ?? `${home}/.hermes`
-  const openClawRoot = environment.OPENCLAW_STATE_DIR ?? `${home}/.openclaw`
-  const codexRoot = environment.CODEX_HOME ?? `${home}/.codex`
+  const hermesRoot = environment.HERMES_HOME || `${home}/.hermes`
+  const openClawRoot = environment.OPENCLAW_STATE_DIR || `${home}/.openclaw`
+  const codexRoot = environment.CODEX_HOME || `${home}/.codex`
   const skillInstallation = (root: string): SkillInstallationPaths => ({
     skillFile: `${root}/magnitude/SKILL.md`,
   })
