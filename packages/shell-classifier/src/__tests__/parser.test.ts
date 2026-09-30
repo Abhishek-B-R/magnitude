@@ -565,6 +565,16 @@ describe('shell-parser', () => {
       ])
     })
 
+    test('compound command keywords are not command names', () => {
+      const result = parseShellCommand('if test -f x; then rm x; else echo none; fi')
+      expect(result.map(c => [c.name, ...c.args])).toEqual([
+        ['test', '-f', 'x'],
+        ['rm', 'x'],
+        ['echo', 'none'],
+        ['fi'],
+      ])
+    })
+
     test('cmd 2>file without space', () => {
       const result = parseShellCommand('cmd 2>/tmp/err')
       expect(result).toEqual([

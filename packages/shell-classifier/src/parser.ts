@@ -6,7 +6,8 @@
  *
  * Handles: single/double quoting, backslash escaping, pipes, &&, ||, ;,
  * redirects (>, >>, 2>, &>, &>>), command substitution $(), backtick
- * substitution, parenthesized subshells, variable assignments.
+ * substitution, parenthesized subshells, variable assignments, and the
+ * reserved words (if, then, do, ...) that introduce a command in a segment.
  */
 
 // ─── Tokens ──────────────────────────────────────────────────
@@ -365,6 +366,8 @@ function parseSegment(tokens: Token[]): SimpleCommand {
           name: tok.value.slice(0, eq),
           value: tok.value.slice(eq + 1)
         })
+      } else if (!foundCommand && assignments.length === 0 && COMPOUND_KEYWORDS.has(tok.value)) {
+        // `then git push` runs git, not a command named `then`
       } else if (!foundCommand) {
         name = tok.value
         foundCommand = true
@@ -380,6 +383,9 @@ function parseSegment(tokens: Token[]): SimpleCommand {
 
   return { assignments, name, args, redirects }
 }
+
+/** Reserved words that may precede the command they introduce in the same segment. */
+const COMPOUND_KEYWORDS = new Set(['if', 'then', 'elif', 'else', 'while', 'until', 'do', '!', '{'])
 
 function isAssignment(word: string): boolean {
   const eq = word.indexOf('=')

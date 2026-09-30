@@ -38,6 +38,10 @@ describe('shell-classifier', () => {
   })
 
   describe('mass-destructive tier', () => {
+    test('rm -rf inside a for loop is mass-destructive', () => {
+      expect(classifyShellCommand('for d in a b; do rm -rf "$d"; done').tier).toBe('mass-destructive')
+    })
+
     test('mass-destructive cases classify as mass-destructive', () => {
       for (const cmd of [
         'rm -r dir',
@@ -106,6 +110,13 @@ describe('shell-classifier', () => {
         expect(classifyShellCommand(cmd).tier).toBe('forbidden')
       })
     }
+
+    test('forbidden git inside if, loops and groups is still forbidden', () => {
+      expect(classifyShellCommand('if [ -n "$CI" ]; then git push --force; fi').tier).toBe('forbidden')
+      expect(classifyShellCommand('while true; do git reset --hard; done').tier).toBe('forbidden')
+      expect(classifyShellCommand('! git push').tier).toBe('forbidden')
+      expect(classifyShellCommand('{ git push; }').tier).toBe('forbidden')
+    })
   })
 
   describe('sed', () => {
@@ -639,6 +650,7 @@ describe('shell-classifier', () => {
 
     test('write git commands are not allowed', () => {
       expect(isGitAllowed('git push')).toBe(false)
+      expect(isGitAllowed('if true; then git push; fi')).toBe(false)
       expect(isGitAllowed('git push --force')).toBe(false)
       expect(isGitAllowed('git commit -m "msg"')).toBe(false)
       expect(isGitAllowed('git add .')).toBe(false)
