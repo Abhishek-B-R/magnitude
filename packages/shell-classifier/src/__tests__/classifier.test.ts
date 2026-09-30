@@ -297,6 +297,16 @@ describe('shell-classifier', () => {
       expect(classifyShellCommand('FOO=bar npm test').tier).toBe('normal')
     })
 
+    test('env prefix does not hide a forbidden command', () => {
+      expect(classifyShellCommand('AWS_PROFILE=prod terraform destroy').tier).toBe('forbidden')
+      expect(classifyShellCommand('CI=1 rm -rf /etc').tier).toBe('forbidden')
+      expect(classifyShellCommand("PGPASSWORD=x psql -c 'drop database prod'").tier).toBe('forbidden')
+    })
+
+    test('env prefix does not hide a mass-destructive command', () => {
+      expect(classifyShellCommand('DEBUG=1 rm -rf dir').tier).toBe('mass-destructive')
+    })
+
     test('assignment with readonly $() is readonly', () => {
       expect(classifyShellCommand('latest=$(ls -t dir | head -1)').tier).toBe('readonly')
     })

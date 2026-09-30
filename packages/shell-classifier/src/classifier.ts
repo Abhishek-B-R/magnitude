@@ -135,7 +135,12 @@ function classifyCommand(cmd: SimpleCommand): ClassificationResult {
     return { tier: worst, reason: null }
   }
 
-  if (cmd.assignments.length > 0) return { tier: 'normal', reason: null }
+  if (cmd.assignments.length > 0) {
+    // A prefix assignment can change what the command does, so it is never readonly,
+    // but it must not hide a forbidden or mass-destructive command either.
+    const result = classifyCommand({ ...cmd, assignments: [] })
+    return worstTier(result.tier, 'normal') === 'normal' ? { tier: 'normal', reason: null } : result
+  }
 
   const hasRedirects = cmd.redirects.length > 0
 
